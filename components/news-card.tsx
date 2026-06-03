@@ -28,11 +28,24 @@ export function NewsCard({
   created_at,
   featured = false,
 }: NewsCardProps) {
-  const formattedDate = new Date(created_at).toLocaleDateString("ne-NP", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  })
+  const formatDateToNepali = (dateString: string) => {
+    const date = new Date(dateString)
+    const day = date.getDate()
+    const year = date.getFullYear()
+    
+    const nepaliMonths = ["जन", "फे", "मार्च", "अप्रि", "मे", "जुन", "जुलाई", "अग", "सेप्ट", "अक्ट", "नोभ", "डिसे"]
+    const month = nepaliMonths[date.getMonth()]
+    
+    // Convert numbers to Nepali numerals
+    const nepaliNumbers = ["०", "१", "२", "३", "४", "५", "६", "७", "८", "९"]
+    const convertToNepali = (num: number) => {
+      return String(num).split("").map(digit => nepaliNumbers[parseInt(digit)]).join("")
+    }
+    
+    return `${convertToNepali(day)} ${month} ${convertToNepali(year)}`
+  }
+  
+  const formattedDate = formatDateToNepali(created_at)
 
   if (featured) {
     return (
