@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { motion } from "framer-motion"
-import { ArrowLeft, Save, Eye, Loader2 } from "lucide-react"
+import { ArrowLeft, Save, Eye, Loader2, Upload, X } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
 import { createClient } from "@/lib/supabase/client"
+import { put } from "@vercel/blob"
 
 const categories = [
   "general",
@@ -41,8 +42,31 @@ export default function NewArticlePage() {
   const [authorName, setAuthorName] = useState("")
   const [published, setPublished] = useState(false)
   const [saving, setSaving] = useState(false)
+  const [uploading, setUploading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [imagePreview, setImagePreview] = useState<string | null>(null)
   const router = useRouter()
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    setUploading(true)
+    setError(null)
+
+    try {
+      const filename = `articles/${Date.now()}-${file.name}`
+      const blob = await put(filename, file, {
+        access: "public",
+      })
+      setImageUrl(blob.url)
+      setImagePreview(blob.url)
+    } catch (err) {
+      setError(`छवि अपलोड विफल: ${err instanceof Error ? err.message : "Unknown error"}`)
+    } finally {
+      setUploading(false)
+    }
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -56,7 +80,7 @@ export default function NewArticlePage() {
     } = await supabase.auth.getUser()
 
     if (!user) {
-      setError("You must be logged in to create articles.")
+      setError("तपाईं लेख सिर्जना गर्न लग इन हुनु पर्छ।")
       setSaving(false)
       return
     }
@@ -179,7 +203,7 @@ export default function NewArticlePage() {
                   <div className="flex gap-2 pt-2">
                     <Button
                       type="submit"
-                      disabled={saving}
+                      disabled={saving || uploading}
                       className="flex-1"
                     >
                       {saving ? (
@@ -238,17 +262,49 @@ export default function NewArticlePage() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="image">छविको URL</Label>
+                    <Label>छवि</Label>
+                    {imagePreview ? (
+                      <div className="relative rounded-lg overflow-hidden border border-border">
+                        <img
+                          src={imagePreview}
+                          alt="Preview"
+                          className="w-full h-40 object-cover"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setImageUrl("")
+                            setImagePreview(null)
+                          }}
+                          className="absolute top-2 right-2 p-1 bg-destructive text-white rounded hover:bg-destructive/90"
+                        >
+                          <X className="h-4 w-4" />
+                        </button>
+                      </div>
+                    ) : (
+                      <label className="flex flex-col items-center justify-center border-2 border-dashed border-border rounded-lg p-6 cursor-pointer hover:border-primary transition-colors">
+                        <Upload className="h-6 w-6 text-muted-foreground mb-2" />
+                        <span className="text-sm text-muted-foreground text-center">
+                          {uploading ? "अपलोड हुँदैछ..." : "छवि अपलोड गर्नुहोस्"}
+                        </span>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleImageUpload}
+                          disabled={uploading}
+                          className="hidden"
+                        />
+                      </label>
+                    )}
+                    <p className="text-xs text-muted-foreground">
+                      वा यहाँ प्रत्यक्ष URL पेस्ट गर्नुहोस्:
+                    </p>
                     <Input
-                      id="image"
                       value={imageUrl}
                       onChange={(e) => setImageUrl(e.target.value)}
                       placeholder="https://example.com/image.jpg"
                       type="url"
                     />
-                    <p className="text-xs text-muted-foreground">
-                      लेख कभर छविको प्रत्यक्ष लिंक
-                    </p>
                   </div>
                 </CardContent>
               </Card>

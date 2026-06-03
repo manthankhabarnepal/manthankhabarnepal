@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { motion } from "framer-motion"
-import { ArrowLeft, Save, Loader2, ExternalLink } from "lucide-react"
+import { ArrowLeft, Save, Loader2, ExternalLink, Upload, X } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
 import { createClient } from "@/lib/supabase/client"
+import { put } from "@vercel/blob"
 
 const categories = [
   "general",
@@ -56,8 +57,31 @@ export function EditArticleForm({ article }: EditArticleFormProps) {
   const [authorName, setAuthorName] = useState(article.author_name || "")
   const [published, setPublished] = useState(article.published)
   const [saving, setSaving] = useState(false)
+  const [uploading, setUploading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [imagePreview, setImagePreview] = useState<string | null>(article.image_url || null)
   const router = useRouter()
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    setUploading(true)
+    setError(null)
+
+    try {
+      const filename = `articles/${Date.now()}-${file.name}`
+      const blob = await put(filename, file, {
+        access: "public",
+      })
+      setImageUrl(blob.url)
+      setImagePreview(blob.url)
+    } catch (err) {
+      setError(`छवि अपलोड विफल: ${err instanceof Error ? err.message : "Unknown error"}`)
+    } finally {
+      setUploading(false)
+    }
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -98,22 +122,22 @@ export function EditArticleForm({ article }: EditArticleFormProps) {
         <Link href="/staff/dashboard/articles">
           <Button variant="ghost" size="sm" className="-ml-2">
             <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Articles
+            लेखहरूमा फर्कनुहोस्
           </Button>
         </Link>
         {published && (
           <Link href={`/news/${article.id}`} target="_blank">
             <Button variant="outline" size="sm">
               <ExternalLink className="h-4 w-4 mr-2" />
-              View Live
+              लाइभ हेर्नुहोस्
             </Button>
           </Link>
         )}
       </div>
 
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-foreground">Edit Article</h1>
-        <p className="text-muted-foreground">Update your news article</p>
+        <h1 className="text-3xl font-bold text-foreground">लेख सम्पादन</h1>
+        <p className="text-muted-foreground">आफ्नो समाचार लेख अद्यावधिक गर्नुहोस्</p>
       </div>
 
       <form onSubmit={handleSubmit}>
@@ -122,7 +146,7 @@ export function EditArticleForm({ article }: EditArticleFormProps) {
           <div className="lg:col-span-2 space-y-6">
             <Card className="border-border/50">
               <CardHeader>
-                <CardTitle>Article Content</CardTitle>
+                <CardTitle>लेख सामग्री</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 {error && (
@@ -132,34 +156,34 @@ export function EditArticleForm({ article }: EditArticleFormProps) {
                 )}
 
                 <div className="space-y-2">
-                  <Label htmlFor="title">Title *</Label>
+                  <Label htmlFor="title">शीर्षक *</Label>
                   <Input
                     id="title"
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
-                    placeholder="Enter article title..."
+                    placeholder="लेखको शीर्षक प्रविष्ट गर्नुहोस्..."
                     required
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="excerpt">Excerpt</Label>
+                  <Label htmlFor="excerpt">सारांश</Label>
                   <Textarea
                     id="excerpt"
                     value={excerpt}
                     onChange={(e) => setExcerpt(e.target.value)}
-                    placeholder="Brief summary of the article..."
+                    placeholder="लेखको संक्षिप्त सारांश..."
                     rows={2}
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="content">Content *</Label>
+                  <Label htmlFor="content">सामग्री *</Label>
                   <Textarea
                     id="content"
                     value={content}
                     onChange={(e) => setContent(e.target.value)}
-                    placeholder="Write your article content here..."
+                    placeholder="यहाँ आफ्नो लेख सामग्री लेख्नुहोस्..."
                     rows={15}
                     required
                   />
@@ -172,14 +196,14 @@ export function EditArticleForm({ article }: EditArticleFormProps) {
           <div className="space-y-6">
             <Card className="border-border/50">
               <CardHeader>
-                <CardTitle>Publish</CardTitle>
+                <CardTitle>प्रकाशन</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <Label htmlFor="published">Published</Label>
+                    <Label htmlFor="published">प्रकाशित</Label>
                     <p className="text-xs text-muted-foreground">
-                      Make this article visible to public
+                      यो लेख सार्वजनिक गर्नुहोस्
                     </p>
                   </div>
                   <Switch
@@ -189,16 +213,20 @@ export function EditArticleForm({ article }: EditArticleFormProps) {
                   />
                 </div>
 
-                <Button type="submit" disabled={saving} className="w-full">
+                <Button
+                  type="submit"
+                  disabled={saving || uploading}
+                  className="w-full"
+                >
                   {saving ? (
                     <>
                       <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                      Saving...
+                      सुरक्षित गर्दै...
                     </>
                   ) : (
                     <>
                       <Save className="h-4 w-4 mr-2" />
-                      Save Changes
+                      परिवर्तनहरू सुरक्षित गर्नुहोस्
                     </>
                   )}
                 </Button>
@@ -207,11 +235,11 @@ export function EditArticleForm({ article }: EditArticleFormProps) {
 
             <Card className="border-border/50">
               <CardHeader>
-                <CardTitle>Details</CardTitle>
+                <CardTitle>विवरण</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="category">Category</Label>
+                  <Label htmlFor="category">विषय</Label>
                   <Select value={category} onValueChange={setCategory}>
                     <SelectTrigger>
                       <SelectValue />
@@ -219,7 +247,15 @@ export function EditArticleForm({ article }: EditArticleFormProps) {
                     <SelectContent>
                       {categories.map((cat) => (
                         <SelectItem key={cat} value={cat} className="capitalize">
-                          {cat}
+                          {cat === 'general' ? 'सामान्य' :
+                           cat === 'politics' ? 'राजनीति' :
+                           cat === 'business' ? 'व्यापार' :
+                           cat === 'sports' ? 'खेलकुद' :
+                           cat === 'crime' ? 'अपराध' :
+                           cat === 'technology' ? 'प्रविधि' :
+                           cat === 'health' ? 'स्वास्थ्य' :
+                           cat === 'economy' ? 'अर्थ' :
+                           cat === 'world' ? 'विश्व' : cat}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -227,19 +263,54 @@ export function EditArticleForm({ article }: EditArticleFormProps) {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="author">Author Name</Label>
+                  <Label htmlFor="author">लेखकको नाम</Label>
                   <Input
                     id="author"
                     value={authorName}
                     onChange={(e) => setAuthorName(e.target.value)}
-                    placeholder="Author name..."
+                    placeholder="लेखकको नाम..."
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="image">Image URL</Label>
+                  <Label>छवि</Label>
+                  {imagePreview ? (
+                    <div className="relative rounded-lg overflow-hidden border border-border">
+                      <img
+                        src={imagePreview}
+                        alt="Preview"
+                        className="w-full h-40 object-cover"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setImageUrl("")
+                          setImagePreview(null)
+                        }}
+                        className="absolute top-2 right-2 p-1 bg-destructive text-white rounded hover:bg-destructive/90"
+                      >
+                        <X className="h-4 w-4" />
+                      </button>
+                    </div>
+                  ) : (
+                    <label className="flex flex-col items-center justify-center border-2 border-dashed border-border rounded-lg p-6 cursor-pointer hover:border-primary transition-colors">
+                      <Upload className="h-6 w-6 text-muted-foreground mb-2" />
+                      <span className="text-sm text-muted-foreground text-center">
+                        {uploading ? "अपलोड हुँदैछ..." : "छवि अपलोड गर्नुहोस्"}
+                      </span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageUpload}
+                        disabled={uploading}
+                        className="hidden"
+                      />
+                    </label>
+                  )}
+                  <p className="text-xs text-muted-foreground">
+                    वा यहाँ प्रत्यक्ष URL पेस्ट गर्नुहोस्:
+                  </p>
                   <Input
-                    id="image"
                     value={imageUrl}
                     onChange={(e) => setImageUrl(e.target.value)}
                     placeholder="https://example.com/image.jpg"
