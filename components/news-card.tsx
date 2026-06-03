@@ -56,7 +56,7 @@ export function NewsCard({
         transition={{ duration: 0.3 }}
       >
         <Link href={`/news/${id}`}>
-          <Card className="overflow-hidden group cursor-pointer border-0 shadow-lg hover:shadow-xl transition-all duration-300">
+          <Card className="overflow-hidden group cursor-pointer border-0 shadow-lg hover:shadow-2xl transition-all duration-300">
             <div className="relative h-[400px] md:h-[500px]">
               {image_url ? (
                 <Image
@@ -68,18 +68,18 @@ export function NewsCard({
               ) : (
                 <div className="absolute inset-0 bg-gradient-to-br from-primary to-primary/70" />
               )}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
-              <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8">
-                <Badge className="mb-3 bg-secondary text-secondary-foreground hover:bg-secondary/90">
+              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent" />
+              <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8 space-y-3">
+                <Badge className="bg-secondary text-secondary-foreground hover:bg-secondary/90 uppercase text-xs font-bold">
                   {category}
                 </Badge>
-                <h2 className="text-2xl md:text-4xl font-bold text-white mb-3 line-clamp-2 text-balance">
+                <h2 className="text-2xl md:text-4xl font-serif font-bold text-white leading-tight">
                   {title}
                 </h2>
-                <p className="text-white/80 text-sm md:text-base mb-4 line-clamp-2">
+                <p className="text-gray-200 text-sm md:text-base line-clamp-2">
                   {excerpt}
                 </p>
-                <div className="flex items-center gap-4 text-white/70 text-sm">
+                <div className="flex items-center gap-4 text-gray-300 text-xs pt-2">
                   {author_name && (
                     <span className="flex items-center gap-1">
                       <User className="h-4 w-4" />
@@ -107,33 +107,33 @@ export function NewsCard({
       transition={{ duration: 0.3 }}
     >
       <Link href={`/news/${id}`}>
-        <Card className="overflow-hidden group cursor-pointer h-full border border-border/50 hover:border-primary/30 hover:shadow-lg transition-all duration-300">
-          <div className="relative h-48">
+        <Card className="overflow-hidden group cursor-pointer h-full border border-border hover:border-secondary/50 hover:shadow-2xl transition-all duration-300 bg-card">
+          <div className="relative h-48 overflow-hidden bg-primary/10">
             {image_url ? (
               <Image
                 src={image_url}
                 alt={title}
                 fill
-                className="object-cover transition-transform duration-500 group-hover:scale-105"
+                className="object-cover transition-transform duration-500 group-hover:scale-110"
               />
             ) : (
-              <div className="absolute inset-0 bg-gradient-to-br from-primary/80 to-primary/50" />
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/60 to-primary/30" />
             )}
-            <div className="absolute top-3 left-3">
-              <Badge className="bg-secondary text-secondary-foreground hover:bg-secondary/90 text-xs">
+            <div className="absolute top-0 left-0 right-0 p-3">
+              <Badge className="bg-secondary text-secondary-foreground hover:bg-secondary/90 text-xs font-bold uppercase">
                 {category}
               </Badge>
             </div>
           </div>
-          <CardContent className="p-4">
-            <h3 className="font-semibold text-lg mb-2 line-clamp-2 group-hover:text-primary transition-colors">
+          <CardContent className="p-5 space-y-3">
+            <h3 className="font-serif font-bold text-lg leading-tight line-clamp-2 group-hover:text-secondary transition-colors">
               {title}
             </h3>
-            <p className="text-muted-foreground text-sm line-clamp-2 mb-3">
+            <p className="text-muted-foreground text-sm line-clamp-2">
               {excerpt}
             </p>
-            <div className="flex items-center justify-between text-xs text-muted-foreground">
-              <div className="flex items-center gap-3">
+            <div className="flex items-center justify-between text-xs text-muted-foreground pt-2 border-t border-border">
+              <div className="flex items-center gap-2">
                 {author_name && (
                   <span className="flex items-center gap-1">
                     <User className="h-3 w-3" />
@@ -145,7 +145,7 @@ export function NewsCard({
                   {formattedDate}
                 </span>
               </div>
-              <ArrowRight className="h-4 w-4 text-primary opacity-0 group-hover:opacity-100 transition-opacity" />
+              <ArrowRight className="h-4 w-4 text-secondary opacity-0 group-hover:opacity-100 transition-all group-hover:translate-x-1" />
             </div>
           </CardContent>
         </Card>
