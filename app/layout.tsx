@@ -35,6 +35,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ne" className="bg-background">
+      <head>
+        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9675272257177191" crossOrigin="anonymous"></script>
+      </head>
       <body className="font-sans antialiased">
         {children}
         {process.env.NODE_ENV === 'production' && <Analytics />}
