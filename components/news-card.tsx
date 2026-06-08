@@ -28,7 +28,7 @@ export function NewsCard({
   created_at,
   featured = false,
 }: NewsCardProps) {
-  const formattedDate = new Date(created_at).toLocaleDateString("ne-NP", {
+  const formattedDate = new Date(created_at).toLocaleDateString("en-US", {
     day: "numeric",
     month: "short",
     year: "numeric",

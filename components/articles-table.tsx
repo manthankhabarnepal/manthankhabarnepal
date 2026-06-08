@@ -96,7 +96,7 @@ export function ArticlesTable({ articles }: ArticlesTableProps) {
             </thead>
             <tbody className="divide-y divide-border">
               {articles.map((article, index) => {
-                const formattedDate = new Date(article.created_at).toLocaleDateString("ne-NP", {
+                const formattedDate = new Date(article.created_at).toLocaleDateString("en-US", {
                   day: "numeric",
                   month: "short",
                   year: "numeric",

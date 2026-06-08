@@ -25,7 +25,7 @@ interface NewsDetailContentProps {
 }
 
 export function NewsDetailContent({ article, relatedArticles }: NewsDetailContentProps) {
-  const formattedDate = new Date(article.created_at).toLocaleDateString("en-IN", {
+  const formattedDate = new Date(article.created_at).toLocaleDateString("en-US", {
     weekday: "long",
     day: "numeric",
     month: "long",
