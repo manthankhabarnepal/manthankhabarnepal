@@ -38,7 +38,7 @@ export function RecentArticles({ articles }: RecentArticlesProps) {
       <CardContent className="p-0">
         <div className="divide-y divide-border">
           {articles.map((article, index) => {
-            const formattedDate = new Date(article.created_at).toLocaleDateString("en-IN", {
+            const formattedDate = new Date(article.created_at).toLocaleDateString("en-US", {
               day: "numeric",
               month: "short",
               year: "numeric",
