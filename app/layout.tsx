@@ -9,7 +9,6 @@ const _geistMono = Geist_Mono({ subsets: ["latin"] });
 export const metadata: Metadata = {
   title: 'मन्थन खबर',
   description: 'दैनिक समाचार, ब्रेकिङ स्टोरीज, र गहन कभरेजको लागि तपाईंको भरपर्दो स्रोत। मन्थन खबरसँग जानकार रहनुहोस्।',
-  generator: 'v0.app',
   icons: {
     icon: [
       {
